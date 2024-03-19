@@ -14,7 +14,7 @@
 - **Protocol**: *MQTT*
     - **Broker**: HiveMQ
     - **Server**: broker.mqttdashboard.com
-    - **Port**: 8883
+    - **Port**: 8883 [TLS PORT]
     - **Topic**: ABDTG_LightSense
 
 ## Instructions:
