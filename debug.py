@@ -31,7 +31,7 @@ class StatusFrame(customtkinter.CTkFrame):
         super().__init__(master, **kwargs)
         self.ldrs:Dict[str, LDR] = {}
         self.ldr_count = 0
-        self.grid_columnconfigure(0, weight=1)
+        # self.grid_columnconfigure(0, weight=1)
         
         for i in ldr_list:
             self.add_ldr(i)    
