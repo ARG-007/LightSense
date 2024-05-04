@@ -3,30 +3,25 @@
 
 typedef struct {
     int id;
-    int pin;
+    int lamp;
+    int env;
     bool previousState;
 } LDR;
 
-const LDR ldr[]={{1,32,true},{2,33,true},{3,34,true},{4,35,true}};
-int adc;
+enum state {WORKING=1, SLEEPING, FAULT};
+
+const LDR ldr[]={{1,32,33,true},{3,34,35,true}};
+int adc, env;
 
 const char *MQTT_SERVER = "broker.mqttdashboard.com";
 const char *USER = "";
 const char *PASS = "";
 const char *CLIENT_ID = "ABDTG_LS_ESP32PUB";
-const char *TOPIC = "ABDTG_LS_ESP32PUB";
+const char *TOPIC = "ABDTG_LightSense";
 const int MQTT_PORT = 1883;
 
 WiFiClient wificlient;
 PubSubClient client(wificlient);
-// const float VOLT = 5*1024;
-// const float RL10 = 50;
-// const float GAMMA = 0.7;
-
-// float readLux(LDR* sensor){
-//     float adc = analogRead(sensor->pin);
-
-// }
 
 void drawLine(char c, int times){
     for(int i=0;i<times;i++){
@@ -117,8 +112,6 @@ void setup(){
     }
 }
 
-const int global = 512;
-
 void loop(){
     if(WiFi.status()!=WL_CONNECTED) {
         connectWifi();
@@ -127,16 +120,19 @@ void loop(){
         connectMQTT();
     }
 
-    for(int i=0;i<4;i++){
-        adc = analogRead(ldr[i].pin);
-        int state = adc<global;
-        unsigned long data =  mask(ldr[i].id, adc, global, state);
+    for(int i=0;i<2;i++){
+
+        adc = analogRead(ldr[i].lamp);
+        env = analogRead(ldr[i].env);
+        int state = adc<env?(env>600 ? SLEEPING : FAULT ) : WORKING;
+        unsigned long data =  mask(ldr[i].id, adc, env, state);
         unmask(data);
         if(client.publish(TOPIC,String(data).c_str())){
             Serial.println("Published");
         } else {
             Serial.println("Not Published");
         }
+        drawLine('-',80);
     }
 
     delay(1000);
